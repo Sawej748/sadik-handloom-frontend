@@ -21,7 +21,7 @@ export default function Navbar() {
       </div>
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-20 grid grid-cols-3 items-center">
-        {/* Left: Menu */}
+        {/* Left: Navigation Menu (Desktop) / Hamburger (Mobile) */}
         <div className="flex items-center">
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-700">
             {navLinks.map((link) => (
@@ -46,7 +46,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Center: Sadik Handloom Logo */}
+        {/* Center: Sadik Handloom Brand Logo */}
         <div className="flex justify-center">
           <Link to="/" className="flex flex-col items-center">
             <img
@@ -79,7 +79,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Dropdown Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white border-b border-stone-200 px-4 py-3 space-y-2 shadow-sm">
           {navLinks.map((link) => (
