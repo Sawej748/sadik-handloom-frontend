@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles, CheckCircle2, PackageOpen, MessageCircle } from 'lucide-react';
+import { fetchProducts } from '../services/api';
+import {
+  Search,
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  CheckCircle2,
+  PackageOpen,
+} from 'lucide-react';
 
 const SAMPLE_SLIDES = [
   {
@@ -94,9 +103,151 @@ function SlideImage({ candidates, alt }) {
   );
 }
 
+function ProductCard({ item, whatsappNumber }) {
+  // Collect front photo (imageUrl) + back/extra photos (extraImageUrls / backImageUrl / images)
+  const extraList = Array.isArray(item.images)
+    ? item.images
+    : typeof item.extraImageUrls === 'string'
+    ? item.extraImageUrls.split(',').map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  const allPhotos = [
+    item.imageUrl,
+    ...(item.backImageUrl ? [item.backImageUrl] : []),
+    ...extraList,
+  ].filter(Boolean);
+
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  const prevPhoto = (e) => {
+    e.stopPropagation();
+    setActiveIdx((prev) => (prev === 0 ? allPhotos.length - 1 : prev - 1));
+  };
+
+  const nextPhoto = (e) => {
+    e.stopPropagation();
+    setActiveIdx((prev) => (prev === allPhotos.length - 1 ? 0 : prev + 1));
+  };
+
+  const getWhatsAppLink = () => {
+    const msg = `Hello SADIK HANDLOOM! I am interested in this Doormat:\n*Name:* ${item.name}\n*Size:* ${item.size || 'Standard'}\n*Material:* ${item.material || 'Handloom'}\n*Colors:* ${item.availableColors || 'As shown'}\n*Price:* ${item.price}\nPlease share availability and order details.`;
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-orange-200/80 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col">
+      <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
+        <img
+          src={allPhotos[activeIdx] || '/logo.jpg'}
+          alt={`${item.name} - View ${activeIdx + 1}`}
+          onError={(e) => {
+            e.currentTarget.src = '/logo.jpg';
+          }}
+          className="w-full h-full object-cover transition duration-300"
+        />
+
+        {typeof item.inStock === 'boolean' && (
+          <span
+            className={`absolute top-2 left-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full ${
+              item.inStock ? 'bg-emerald-600 text-white' : 'bg-stone-700 text-white'
+            }`}
+          >
+            {item.inStock ? 'In Stock' : 'Out of Stock'}
+          </span>
+        )}
+
+        {allPhotos.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={prevPhoto}
+              className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-black/55 hover:bg-black/80 text-white p-1 rounded-full transition"
+              aria-label="Previous photo"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={nextPhoto}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-black/55 hover:bg-black/80 text-white p-1 rounded-full transition"
+              aria-label="Next photo"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+
+            <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-black/55 px-2 py-1 rounded-full">
+              {allPhotos.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveIdx(idx);
+                  }}
+                  className={`h-1.5 rounded-full transition-all ${
+                    idx === activeIdx ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
+                  }`}
+                  aria-label={`Photo ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+              {activeIdx === 0 ? 'Front' : activeIdx === 1 ? 'Back' : `Photo ${activeIdx + 1}`} ({activeIdx + 1}/{allPhotos.length})
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-between gap-1 mb-1">
+            {item.material && (
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-orange-900 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded">
+                {item.material}
+              </span>
+            )}
+            <span className="font-bold text-sm sm:text-base text-stone-900 ml-auto">
+              {item.price}
+            </span>
+          </div>
+
+          <h3 className="font-bold text-xs sm:text-sm text-stone-900 line-clamp-2 mb-1.5 leading-snug">
+            {item.name}
+          </h3>
+
+          <div className="text-[11px] text-stone-600 space-y-0.5 mb-3">
+            {item.size && (
+              <p className="truncate"><span className="font-medium text-stone-800">Size:</span> {item.size}</p>
+            )}
+            {item.availableColors && (
+              <p className="truncate"><span className="font-medium text-stone-800">Colors:</span> {item.availableColors}</p>
+            )}
+          </div>
+        </div>
+
+        <a
+          href={getWhatsAppLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-2.5 rounded-lg text-xs sm:text-sm transition"
+        >
+          <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+          <span>Inquire on WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function CatalogPage() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [keyword, setKeyword] = useState('');
   const [material, setMaterial] = useState('');
+  const [size, setSize] = useState('');
   const [slideIdx, setSlideIdx] = useState(0);
+
   const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919917485101';
 
   useEffect(() => {
@@ -105,6 +256,32 @@ export default function CatalogPage() {
     }, 3500);
     return () => clearInterval(timer);
   }, []);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const res = await fetchProducts({
+        keyword: keyword || undefined,
+        material: material || undefined,
+        size: size || undefined,
+      });
+      setProducts(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Failed to fetch products:', err);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, [material, size]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    loadProducts();
+  };
 
   const prevSlide = () => {
     setSlideIdx((prev) => (prev === 0 ? SAMPLE_SLIDES.length - 1 : prev - 1));
@@ -121,7 +298,6 @@ export default function CatalogPage() {
       {/* Single Box Auto-Sliding Sample Showcase (1 Doormat Photo + Quality Details, No Price) */}
       <div className="relative bg-gradient-to-br from-[#FDEBD6] via-[#FCE2C4] to-[#F7D3AC] border border-orange-200/90 rounded-2xl overflow-hidden shadow-xs mb-8">
         <div className="grid grid-cols-1 md:grid-cols-12 items-center p-5 sm:p-8 lg:px-14 gap-6">
-          {/* Left: Quality Specifications */}
           <div className="md:col-span-6 space-y-3 text-left order-2 md:order-1">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-white/90 text-orange-900 px-3 py-1 rounded-full border border-orange-200">
               <Sparkles className="w-3 h-3 text-orange-700" /> {currentSlide.badge}
@@ -146,7 +322,6 @@ export default function CatalogPage() {
             </div>
           </div>
 
-          {/* Right: Single Doormat Photo */}
           <div className="md:col-span-6 flex justify-center order-1 md:order-2">
             <div className="bg-white p-2.5 rounded-xl shadow-sm border border-orange-200/80 w-full max-w-[380px] sm:max-w-[430px] aspect-[4/3] overflow-hidden">
               <SlideImage candidates={currentSlide.candidates} alt={currentSlide.title} />
@@ -187,9 +362,9 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      {/* Category Filter Pills & Empty Catalog State */}
+      {/* Category Filter Pills & Admin-Uploaded Catalog */}
       <div id="products-section" className="scroll-mt-24 pt-1">
-        <div className="flex items-center justify-center sm:justify-start gap-2 overflow-x-auto pb-2 mb-5">
+        <div className="flex items-center justify-center sm:justify-start gap-2 overflow-x-auto pb-2 mb-4">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.label}
@@ -206,23 +381,70 @@ export default function CatalogPage() {
           ))}
         </div>
 
-        <div className="text-center py-12 px-4 bg-white rounded-xl border border-dashed border-orange-200">
-          <PackageOpen className="w-10 h-10 text-orange-800/60 mx-auto mb-2" />
-          <h2 className="text-sm sm:text-base font-semibold text-stone-800">
-            Catalog Products Coming Soon
-          </h2>
-          <p className="text-xs text-stone-500 max-w-md mx-auto mt-1 mb-4">
-            Admin-uploaded doormats with live price and WhatsApp inquiry will appear here once added.
-          </p>
-          <a
-            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello SADIK HANDLOOM! Please share photos and prices of your ready stock doormats.')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition"
+        {products.length > 0 && (
+          <form
+            onSubmit={handleSearch}
+            className="bg-white p-2.5 sm:p-3 rounded-xl shadow-xs border border-orange-200/70 mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2"
           >
-            <MessageCircle className="w-4 h-4" /> Ask on WhatsApp
-          </a>
-        </div>
+            <div className="relative col-span-2">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Search available doormats..."
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                className="w-full pl-9 pr-3 py-1.5 border border-stone-300 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-orange-700"
+              />
+            </div>
+
+            <input
+              type="text"
+              placeholder="Size (e.g. 16x24)"
+              value={size}
+              onChange={(e) => setSize(e.target.value)}
+              className="w-full px-3 py-1.5 border border-stone-300 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-orange-700"
+            />
+
+            <button
+              type="submit"
+              className="bg-orange-800 hover:bg-orange-900 text-white font-medium py-1.5 px-3 rounded-lg text-xs sm:text-sm transition"
+            >
+              Search
+            </button>
+          </form>
+        )}
+
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="bg-white rounded-xl border border-orange-200/70 h-60 animate-pulse" />
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12 px-4 bg-white rounded-xl border border-dashed border-orange-200">
+            <PackageOpen className="w-10 h-10 text-orange-800/60 mx-auto mb-2" />
+            <h2 className="text-sm sm:text-base font-semibold text-stone-800">
+              Catalog Products Coming Soon
+            </h2>
+            <p className="text-xs text-stone-500 max-w-md mx-auto mt-1 mb-4">
+              Admin-uploaded doormats (with front & back photos, price, and WhatsApp inquiry) will appear here once added.
+            </p>
+            <a
+              href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello SADIK HANDLOOM! Please share photos and prices of your ready stock doormats.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition"
+            >
+              <MessageCircle className="w-4 h-4" /> Ask on WhatsApp
+            </a>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            {products.map((item) => (
+              <ProductCard key={item.id} item={item} whatsappNumber={whatsappNumber} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
