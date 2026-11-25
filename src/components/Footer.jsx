@@ -4,13 +4,13 @@ export default function Footer() {
   const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919917485101';
 
   return (
-    <footer id="contact-section" className="bg-[#EFEAE2] text-stone-700 mt-14 border-t border-stone-200">
+    <footer id="contact-section" className="scroll-mt-24 bg-[#FDEBD6] text-stone-700 mt-14 border-t border-orange-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="flex items-start gap-3.5">
           <img
             src="/logo.jpg"
             alt="Sadik Handloom"
-            className="h-14 w-auto rounded-lg bg-white p-1 border border-stone-200 object-contain shrink-0"
+            className="h-16 w-auto rounded-xl bg-white p-1 border border-orange-200 object-contain shrink-0"
           />
           <div>
             <h3 className="font-bold text-stone-900 text-base">SADIK HANDLOOM</h3>
@@ -23,7 +23,7 @@ export default function Footer() {
         <div className="text-xs space-y-2.5 text-stone-700">
           <h4 className="font-bold text-stone-900 text-sm">Contact & Factory Address</h4>
           <p className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
+            <MapPin className="w-4 h-4 text-orange-800 shrink-0 mt-0.5" />
             <span>Behind Government Hospital, Village Gangeru, Uttar Pradesh - 247775</span>
           </p>
           <p className="flex items-center gap-2">
@@ -33,7 +33,7 @@ export default function Footer() {
             </a>
           </p>
           <p className="flex items-center gap-2">
-            <Mail className="w-4 h-4 text-amber-800 shrink-0" />
+            <Mail className="w-4 h-4 text-orange-800 shrink-0" />
             <span>sadikhandloom01@gmail.com</span>
           </p>
         </div>

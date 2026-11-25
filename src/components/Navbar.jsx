@@ -1,44 +1,63 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ShieldCheck, MessageCircle } from 'lucide-react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919917485101';
-  const isHome = location.pathname === '/';
 
-  const navLinks = [
-    { name: 'Home', href: isHome ? '#home-section' : '/' },
-    { name: 'Products', href: isHome ? '#products-section' : '/#products-section' },
-    { name: 'Contact', href: isHome ? '#contact-section' : '/#contact-section' },
-  ];
+  const handleSectionNav = (e, sectionId) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+      }, 120);
+      return;
+    }
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF8F5]/95 backdrop-blur border-b border-stone-200/80">
-      <div className="bg-[#EFEAE2] text-stone-700 text-[11px] sm:text-xs py-1.5 px-4 text-center font-medium border-b border-stone-200/60">
+    <header className="sticky top-0 z-50 bg-[#FFF9F2]/95 backdrop-blur border-b border-orange-200/70">
+      <div className="bg-[#FDEBD6] text-stone-700 text-[11px] sm:text-xs py-1.5 px-4 text-center font-medium border-b border-orange-200/60">
         Direct Handloom Manufacturer & Wholesale Supplier • Village Gangeru, Uttar Pradesh
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-20 grid grid-cols-3 items-center">
-        {/* Left: Navigation Menu (Desktop) / Hamburger (Mobile) */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-24 grid grid-cols-3 items-center">
+        {/* Left: Navigation Menu */}
         <div className="flex items-center">
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-700">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="hover:text-amber-800 transition py-1"
-              >
-                {link.name}
-              </a>
-            ))}
+            <a
+              href="#home-section"
+              onClick={(e) => handleSectionNav(e, 'home-section')}
+              className="hover:text-orange-800 transition py-1 cursor-pointer"
+            >
+              Home
+            </a>
+            <a
+              href="#products-section"
+              onClick={(e) => handleSectionNav(e, 'products-section')}
+              className="hover:text-orange-800 transition py-1 cursor-pointer"
+            >
+              Products
+            </a>
+            <a
+              href="#contact-section"
+              onClick={(e) => handleSectionNav(e, 'contact-section')}
+              className="hover:text-orange-800 transition py-1 cursor-pointer"
+            >
+              Contact
+            </a>
           </nav>
 
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden inline-flex items-center gap-1.5 bg-white border border-stone-300 text-stone-800 px-2.5 py-2 rounded-lg text-xs font-medium hover:bg-stone-100"
+            className="md:hidden inline-flex items-center gap-1.5 bg-white border border-stone-300 text-stone-800 px-2.5 py-2 rounded-lg text-xs font-medium hover:bg-orange-50"
             aria-label="Toggle Menu"
           >
             {menuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -46,13 +65,13 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Center: Sadik Handloom Brand Logo */}
+        {/* Center: Sadik Handloom Logo (Slightly larger, balanced) */}
         <div className="flex justify-center">
-          <Link to="/" className="flex flex-col items-center">
+          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center">
             <img
               src="/logo.jpg"
               alt="Sadik Handloom"
-              className="h-14 sm:h-16 w-auto object-contain rounded-lg bg-white px-1.5 py-0.5 border border-stone-200/80 shadow-xs"
+              className="h-16 sm:h-20 w-auto object-contain rounded-xl bg-white px-2 py-1 border border-orange-200/80 shadow-xs"
             />
           </Link>
         </div>
@@ -71,9 +90,9 @@ export default function Navbar() {
 
           <Link
             to="/admin"
-            className="hidden sm:inline-flex items-center gap-1 bg-white hover:bg-stone-100 text-stone-700 text-xs font-medium px-2.5 py-2 rounded-lg border border-stone-300 transition"
+            className="hidden sm:inline-flex items-center gap-1 bg-white hover:bg-orange-50 text-stone-700 text-xs font-medium px-2.5 py-2 rounded-lg border border-stone-300 transition"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
+            <ShieldCheck className="w-3.5 h-3.5 text-orange-800" />
             <span>Admin</span>
           </Link>
         </div>
@@ -81,21 +100,32 @@ export default function Navbar() {
 
       {/* Mobile Dropdown Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-b border-stone-200 px-4 py-3 space-y-2 shadow-sm">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="block py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FAF8F5] hover:text-amber-800"
-            >
-              {link.name}
-            </a>
-          ))}
+        <div className="md:hidden bg-white border-b border-orange-200 px-4 py-3 space-y-2 shadow-sm">
+          <a
+            href="#home-section"
+            onClick={(e) => handleSectionNav(e, 'home-section')}
+            className="block py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
+          >
+            Home
+          </a>
+          <a
+            href="#products-section"
+            onClick={(e) => handleSectionNav(e, 'products-section')}
+            className="block py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
+          >
+            Products
+          </a>
+          <a
+            href="#contact-section"
+            onClick={(e) => handleSectionNav(e, 'contact-section')}
+            className="block py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
+          >
+            Contact
+          </a>
           <Link
             to="/admin"
             onClick={() => setMenuOpen(false)}
-            className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium text-amber-900 bg-amber-50/70"
+            className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium text-orange-900 bg-orange-50"
           >
             <ShieldCheck className="w-4 h-4" /> Admin Login
           </Link>
