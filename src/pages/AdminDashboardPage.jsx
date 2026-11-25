@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '../services/api';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Images } from 'lucide-react';
 
 const emptyForm = {
   name: '',
@@ -17,7 +17,7 @@ export default function AdminDashboardPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(emptyForm);
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -39,10 +39,15 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleFileChange = (e) => {
+    const selected = Array.from(e.target.files || []);
+    setImages(selected);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!editingId && !image) {
-      alert('Please select a doormat photo');
+    if (!editingId && images.length === 0) {
+      alert('Please select at least 1 doormat photo');
       return;
     }
 
@@ -52,9 +57,9 @@ export default function AdminDashboardPage() {
     const formData = new FormData();
     const productPayload = { ...form, price: parseFloat(form.price) };
     formData.append('product', new Blob([JSON.stringify(productPayload)], { type: 'application/json' }));
-    if (image) {
-      formData.append('image', image);
-    }
+    images.forEach((file) => {
+      formData.append('images', file);
+    });
 
     try {
       if (editingId) {
@@ -84,14 +89,14 @@ export default function AdminDashboardPage() {
       price: item.price,
       inStock: item.inStock,
     });
-    setImage(null);
+    setImages([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const resetForm = () => {
     setEditingId(null);
     setForm(emptyForm);
-    setImage(null);
+    setImages([]);
   };
 
   const handleDelete = async (id) => {
@@ -102,6 +107,11 @@ export default function AdminDashboardPage() {
     } catch (err) {
       alert('Failed to delete product');
     }
+  };
+
+  const getPhotoCount = (item) => {
+    if (!item.extraImageUrls) return 1;
+    return 1 + item.extraImageUrls.split(',').filter(Boolean).length;
   };
 
   return (
@@ -179,7 +189,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-stone-700 mb-1">Price () *</label>
+            <label className="block text-xs font-medium text-stone-700 mb-1">Price (INR) *</label>
             <input
               type="number"
               step="0.01"
@@ -193,14 +203,20 @@ export default function AdminDashboardPage() {
 
           <div>
             <label className="block text-xs font-medium text-stone-700 mb-1">
-              Product Photo {editingId ? '(Optional on edit)' : '*'}
+              Product Photos (Front, Back, etc.) {editingId ? '(Optional on edit)' : '*'}
             </label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setImage(e.target.files[0])}
+              multiple
+              onChange={handleFileChange}
               className="w-full text-sm text-stone-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-800 hover:file:bg-amber-100"
             />
+            {images.length > 0 && (
+              <p className="text-xs text-emerald-700 mt-1 font-medium">
+                {images.length} photo(s) selected (1st photo = Cover)
+              </p>
+            )}
           </div>
 
           <div className="sm:col-span-2">
@@ -234,7 +250,7 @@ export default function AdminDashboardPage() {
               className="flex items-center gap-2 bg-amber-800 text-white font-medium px-5 py-2.5 rounded-lg text-sm hover:bg-amber-900 transition disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
-              {submitting ? 'Saving...' : editingId ? 'Update Doormat' : 'Add Doormat to Catalog'}
+              {submitting ? 'Uploading Photos & Saving...' : editingId ? 'Update Doormat' : 'Add Doormat to Catalog'}
             </button>
           </div>
         </form>
@@ -244,7 +260,7 @@ export default function AdminDashboardPage() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-stone-100 text-xs uppercase text-stone-600 border-b border-stone-200">
-              <th className="p-3">Photo</th>
+              <th className="p-3">Photos</th>
               <th className="p-3">Name</th>
               <th className="p-3">Specs</th>
               <th className="p-3">Price</th>
@@ -256,7 +272,12 @@ export default function AdminDashboardPage() {
             {products.map((item) => (
               <tr key={item.id} className="hover:bg-stone-50">
                 <td className="p-3">
-                  <img src={item.imageUrl} alt={item.name} className="w-14 h-14 object-cover rounded-lg border" />
+                  <div className="relative inline-block">
+                    <img src={item.imageUrl} alt={item.name} className="w-14 h-14 object-cover rounded-lg border" />
+                    <span className="absolute -bottom-1.5 -right-1.5 bg-amber-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <Images className="w-2.5 h-2.5" /> {getPhotoCount(item)}
+                    </span>
+                  </div>
                 </td>
                 <td className="p-3 font-medium text-stone-900">{item.name}</td>
                 <td className="p-3 text-xs text-stone-600">
