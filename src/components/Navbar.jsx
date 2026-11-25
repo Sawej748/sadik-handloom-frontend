@@ -8,17 +8,28 @@ export default function Navbar() {
   const navigate = useNavigate();
   const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919917485101';
 
+  const scrollToTarget = (sectionId) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    if (sectionId === 'contact-section') {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    } else if (sectionId === 'home-section') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const handleSectionNav = (e, sectionId) => {
     e.preventDefault();
     setMenuOpen(false);
     if (location.pathname !== '/') {
       navigate('/');
-      setTimeout(() => {
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
-      }, 120);
+      setTimeout(() => scrollToTarget(sectionId), 150);
       return;
     }
-    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+    scrollToTarget(sectionId);
   };
 
   return (
@@ -31,27 +42,27 @@ export default function Navbar() {
         {/* Left: Navigation Menu */}
         <div className="flex items-center">
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-700">
-            <a
-              href="#home-section"
+            <button
+              type="button"
               onClick={(e) => handleSectionNav(e, 'home-section')}
-              className="hover:text-orange-800 transition py-1 cursor-pointer"
+              className="hover:text-orange-800 transition py-1 cursor-pointer bg-transparent border-0"
             >
               Home
-            </a>
-            <a
-              href="#products-section"
+            </button>
+            <button
+              type="button"
               onClick={(e) => handleSectionNav(e, 'products-section')}
-              className="hover:text-orange-800 transition py-1 cursor-pointer"
+              className="hover:text-orange-800 transition py-1 cursor-pointer bg-transparent border-0"
             >
               Products
-            </a>
-            <a
-              href="#contact-section"
+            </button>
+            <button
+              type="button"
               onClick={(e) => handleSectionNav(e, 'contact-section')}
-              className="hover:text-orange-800 transition py-1 cursor-pointer"
+              className="hover:text-orange-800 transition py-1 cursor-pointer bg-transparent border-0 font-semibold text-stone-800"
             >
               Contact
-            </a>
+            </button>
           </nav>
 
           <button
@@ -65,7 +76,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Center: Sadik Handloom Logo (Slightly larger, balanced) */}
+        {/* Center: Sadik Handloom Logo */}
         <div className="flex justify-center">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center">
             <img
@@ -101,27 +112,27 @@ export default function Navbar() {
       {/* Mobile Dropdown Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white border-b border-orange-200 px-4 py-3 space-y-2 shadow-sm">
-          <a
-            href="#home-section"
+          <button
+            type="button"
             onClick={(e) => handleSectionNav(e, 'home-section')}
-            className="block py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
+            className="block w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
           >
             Home
-          </a>
-          <a
-            href="#products-section"
+          </button>
+          <button
+            type="button"
             onClick={(e) => handleSectionNav(e, 'products-section')}
-            className="block py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
+            className="block w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
           >
             Products
-          </a>
-          <a
-            href="#contact-section"
+          </button>
+          <button
+            type="button"
             onClick={(e) => handleSectionNav(e, 'contact-section')}
-            className="block py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
+            className="block w-full text-left py-2 px-3 rounded-lg text-sm font-medium text-stone-800 hover:bg-[#FFF9F2] hover:text-orange-800"
           >
             Contact
-          </a>
+          </button>
           <Link
             to="/admin"
             onClick={() => setMenuOpen(false)}
