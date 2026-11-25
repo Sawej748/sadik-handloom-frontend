@@ -3,58 +3,63 @@ import { fetchProducts } from '../services/api';
 import {
   Search,
   MessageCircle,
-  MapPin,
-  Phone,
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  CheckCircle2,
   PackageOpen,
 } from 'lucide-react';
 
-const HERO_SLIDES = [
+const SHOWCASE_SLIDES = [
   {
-    badge: 'Handcrafted in Village Gangeru, UP',
-    title: 'Soft & Durable Handloom Cotton Doormats',
-    subtitle: 'Traditional braided weaves, vibrant stripes, and washable cotton yarns crafted for everyday comfort.',
-    image: 'https://images.pexels.com/photos/6585757/pexels-photo-6585757.jpeg?auto=compress&cs=tinysrgb&w=900',
-    caption: 'Handwoven Cotton Collection',
-  },
-  {
-    badge: 'Direct Manufacturer & Wholesale',
-    title: 'Natural Coir & Textured Entrance Mats',
-    subtitle: 'Heavy-duty dirt-trapping fibers and neat finishing built to last at every doorstep.',
+    badge: 'Craftsmanship Showcase',
+    title: 'Handwoven Cotton Braided Doormat',
+    qualityPoints: [
+      'Material: 100% Pure Twisted Cotton Yarn',
+      'Build: Heavy-Duty Tight Braided Handloom Weave',
+      'Care: Soft Underfoot & Easy Machine Washable',
+    ],
     image: 'https://images.pexels.com/photos/6969866/pexels-photo-6969866.jpeg?auto=compress&cs=tinysrgb&w=900',
-    caption: 'Heavy-Duty Entrance Mats',
   },
   {
-    badge: 'Custom Sizes & Bulk Orders',
-    title: 'Colourful Striped & Braided Floor Mats',
-    subtitle: 'Available in standard 16x24, 18x27 and custom dimensions directly from our handloom unit.',
+    badge: 'Craftsmanship Showcase',
+    title: 'Natural Coir Entrance Welcome Mat',
+    qualityPoints: [
+      'Material: 100% Natural Coconut Husk Fiber',
+      'Build: Coarse Dirt-Trapping Bristles with Anti-Slip Base',
+      'Care: Shake or Brush Clean Effortlessly',
+    ],
+    image: 'https://images.pexels.com/photos/4207892/pexels-photo-4207892.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    badge: 'Craftsmanship Showcase',
+    title: 'Textured Handloom Jute & Cotton Mat',
+    qualityPoints: [
+      'Material: Natural Jute & Thick Cotton Blend',
+      'Build: Reinforced Edge Stitching for Zero Fraying',
+      'Feature: High Dust & Moisture Absorption',
+    ],
+    image: 'https://images.pexels.com/photos/6585757/pexels-photo-6585757.jpeg?auto=compress&cs=tinysrgb&w=900',
+  },
+  {
+    badge: 'Craftsmanship Showcase',
+    title: 'Traditional Striped Handloom Floor Mat',
+    qualityPoints: [
+      'Material: Colorfast Dyed Cotton Threads',
+      'Build: Reversible Flat-Lay Heavy Weave',
+      'Use: Ideal for Main Entrance, Kitchen & Balcony',
+    ],
     image: 'https://images.pexels.com/photos/6707628/pexels-photo-6707628.jpeg?auto=compress&cs=tinysrgb&w=900',
-    caption: 'Custom Bulk Supply',
-  },
-];
-
-const DESIGN_SHOWCASE = [
-  {
-    title: 'Braided Cotton Stripe Mat',
-    tag: 'Cotton Handloom',
-    image: 'https://images.pexels.com/photos/6585757/pexels-photo-6585757.jpeg?auto=compress&cs=tinysrgb&w=600',
   },
   {
-    title: 'Natural Coir Welcome Mat',
-    tag: 'Natural Coir',
-    image: 'https://images.pexels.com/photos/6969866/pexels-photo-6969866.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-  {
-    title: 'Textured Woven Door Mat',
-    tag: 'Heavy Duty',
-    image: 'https://images.pexels.com/photos/6707628/pexels-photo-6707628.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-  {
-    title: 'Classic Indoor Cotton Rug Mat',
-    tag: 'Washable Cotton',
-    image: 'https://images.pexels.com/photos/6585602/pexels-photo-6585602.jpeg?auto=compress&cs=tinysrgb&w=600',
+    badge: 'Craftsmanship Showcase',
+    title: 'Heavy-Duty Woven Doorstep Mat',
+    qualityPoints: [
+      'Material: High-Density Interlaced Fiber Yarn',
+      'Build: All-Weather Durable Doorstep Grip',
+      'Finish: Handcrafted in Village Gangeru, UP',
+    ],
+    image: 'https://images.pexels.com/photos/6585602/pexels-photo-6585602.jpeg?auto=compress&cs=tinysrgb&w=900',
   },
 ];
 
@@ -146,7 +151,7 @@ function ProductCard({ item, whatsappNumber }) {
             {item.name}
           </h3>
 
-          <div className="text-[11px] text-slate-600 space-y-0.5 mb-3">
+          <div className="text-[11px] text-stone-600 space-y-0.5 mb-3">
             <p className="truncate"><span className="font-medium text-stone-800">Size:</span> {item.size}</p>
             <p className="truncate"><span className="font-medium text-stone-800">Colors:</span> {item.availableColors}</p>
           </div>
@@ -176,10 +181,11 @@ export default function CatalogPage() {
 
   const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '919917485101';
 
+  // Auto-slide every 3.5 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 4500);
+      setSlideIdx((prev) => (prev + 1) % SHOWCASE_SLIDES.length);
+    }, 3500);
     return () => clearInterval(timer);
   }, []);
 
@@ -209,67 +215,83 @@ export default function CatalogPage() {
     loadProducts();
   };
 
-  const currentSlide = HERO_SLIDES[slideIdx];
+  const prevSlide = () => {
+    setSlideIdx((prev) => (prev === 0 ? SHOWCASE_SLIDES.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setSlideIdx((prev) => (prev + 1) % SHOWCASE_SLIDES.length);
+  };
+
+  const currentSlide = SHOWCASE_SLIDES[slideIdx];
 
   return (
-    <div id="home-section" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
-      {/* Warm, Light-Toned Compact Hero Slider */}
-      <div className="relative bg-gradient-to-br from-[#F4EDE4] via-[#EFE6DA] to-[#E6D9C8] border border-stone-200/90 rounded-2xl overflow-hidden shadow-sm mb-7">
-        <div className="grid grid-cols-1 md:grid-cols-12 items-center p-4 sm:p-8 gap-5">
-          <div className="md:col-span-7 space-y-2.5 text-center md:text-left">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-white/80 text-amber-900 px-3 py-1 rounded-full border border-stone-200">
+    <div id="home-section" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
+      {/* Single Auto-Sliding Showcase Banner (1 Doormat Photo + Quality Specs at a time, No Price) */}
+      <div className="relative bg-gradient-to-br from-[#F4EDE4] via-[#EFE6DA] to-[#E6D9C8] border border-stone-200/90 rounded-2xl overflow-hidden shadow-xs mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 items-center p-5 sm:p-8 lg:px-14 gap-6 transition-all duration-500">
+          {/* Left: Quality Specifications */}
+          <div className="md:col-span-6 space-y-3 text-left order-2 md:order-1">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold bg-white/85 text-amber-900 px-3 py-1 rounded-full border border-stone-200">
               <Sparkles className="w-3 h-3 text-amber-700" /> {currentSlide.badge}
             </span>
-            <h1 className="text-xl sm:text-3xl font-extrabold text-stone-900 tracking-tight leading-tight">
+
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-stone-900 tracking-tight leading-snug">
               {currentSlide.title}
             </h1>
-            <p className="text-xs sm:text-sm text-stone-600 max-w-xl mx-auto md:mx-0 leading-relaxed">
-              {currentSlide.subtitle}
-            </p>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-1">
-              <a
-                href="#products-section"
-                className="bg-amber-800 hover:bg-amber-900 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm"
-              >
-                View Catalog
-              </a>
-              <a
-                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello SADIK HANDLOOM! Please share your latest doormat designs and wholesale rates.')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition"
-              >
-                Bulk Inquiry
-              </a>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-[11px] text-stone-600 pt-1">
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-amber-800" /> Village Gangeru, UP - 247775
-              </span>
-              <span className="flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-emerald-700" /> +91 9917485101
-              </span>
+            <div className="space-y-2 pt-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-stone-600">
+                Quality Specifications:
+              </p>
+              <ul className="space-y-1.5 text-xs sm:text-sm text-stone-800">
+                {currentSlide.qualityPoints.map((point, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          <div className="md:col-span-5 flex justify-center">
-            <div className="relative bg-white p-2 rounded-xl shadow-sm border border-stone-200 w-full max-w-[300px] sm:max-w-[340px] aspect-[16/10] overflow-hidden">
+          {/* Right: Single Crisp Doormat Photo */}
+          <div className="md:col-span-6 flex justify-center order-1 md:order-2">
+            <div className="bg-white p-2 rounded-xl shadow-sm border border-stone-200 w-full max-w-[360px] sm:max-w-[420px] aspect-[4/3] overflow-hidden">
               <img
+                key={currentSlide.image}
                 src={currentSlide.image}
                 alt={currentSlide.title}
-                className="w-full h-full object-cover rounded-lg"
+                onError={(e) => {
+                  e.currentTarget.src = '/logo.jpg';
+                }}
+                className="w-full h-full object-cover rounded-lg transition-opacity duration-500"
               />
-              <span className="absolute bottom-3 right-3 bg-stone-900/75 text-white text-[10px] font-medium px-2.5 py-0.5 rounded-full">
-                {currentSlide.caption}
-              </span>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-center gap-1.5 pb-3">
-          {HERO_SLIDES.map((_, idx) => (
+        {/* Left / Right Manual Slide Arrows */}
+        <button
+          type="button"
+          onClick={prevSlide}
+          aria-label="Previous design"
+          className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-stone-800 p-2 rounded-full border border-stone-200 shadow-xs transition"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={nextSlide}
+          aria-label="Next design"
+          className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 bg-white/85 hover:bg-white text-stone-800 p-2 rounded-full border border-stone-200 shadow-xs transition"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
+        {/* Slide Indicator Dots */}
+        <div className="flex justify-center gap-1.5 pb-3.5">
+          {SHOWCASE_SLIDES.map((_, idx) => (
             <button
               key={idx}
               type="button"
@@ -283,58 +305,15 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      {/* Visual Design Inspiration Strip (Photos Only - No Fake Prices) */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm sm:text-lg font-bold text-stone-900">
-            Craftsmanship & Weave Styles
-          </h2>
-          <span className="text-[11px] text-stone-500">Handloom Showcase</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          {DESIGN_SHOWCASE.map((design, idx) => (
-            <div
-              key={idx}
-              className="group bg-white rounded-xl border border-stone-200/90 overflow-hidden shadow-sm"
-            >
-              <div className="aspect-[4/3] overflow-hidden bg-stone-100">
-                <img
-                  src={design.image}
-                  alt={design.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
-              </div>
-              <div className="p-2.5">
-                <span className="text-[10px] font-medium text-amber-800 block">
-                  {design.tag}
-                </span>
-                <p className="text-xs font-semibold text-stone-800 truncate">
-                  {design.title}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Real Products Section (Only Admin-Uploaded Products with Price & WhatsApp Inquiry) */}
-      <div id="products-section" className="pt-2">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base sm:text-xl font-bold text-stone-900">
-            Available Doormat Catalog
-          </h2>
-          <span className="text-xs text-stone-500">
-            {products.length} {products.length === 1 ? 'Product' : 'Products'}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3">
+      {/* Category Filter Pills */}
+      <div id="products-section" className="pt-1">
+        <div className="flex items-center justify-center sm:justify-start gap-2 overflow-x-auto pb-2 mb-4">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.label}
               type="button"
               onClick={() => setMaterial(cat.value)}
-              className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap border transition ${
+              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap border transition ${
                 material === cat.value
                   ? 'bg-amber-800 text-white border-amber-800'
                   : 'bg-white text-stone-700 border-stone-300 hover:border-amber-700'
@@ -345,15 +324,16 @@ export default function CatalogPage() {
           ))}
         </div>
 
+        {/* Search & Size Bar */}
         <form
           onSubmit={handleSearch}
-          className="bg-white p-2.5 sm:p-3 rounded-xl shadow-sm border border-stone-200 mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2"
+          className="bg-white p-2.5 sm:p-3 rounded-xl shadow-xs border border-stone-200 mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2"
         >
           <div className="relative col-span-2">
             <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Search doormat name..."
+              placeholder="Search available doormats..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 border border-stone-300 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-amber-700"
@@ -376,6 +356,17 @@ export default function CatalogPage() {
           </button>
         </form>
 
+        {/* Available Doormat Catalog Header */}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base sm:text-xl font-bold text-stone-900">
+            Available Doormat Catalog
+          </h2>
+          <span className="text-xs text-stone-500">
+            {products.length} {products.length === 1 ? 'Product' : 'Products'}
+          </span>
+        </div>
+
+        {/* Real Admin-Uploaded Products Only */}
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {[1, 2, 3, 4].map((n) => (
@@ -383,16 +374,16 @@ export default function CatalogPage() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-12 px-4 bg-white rounded-xl border border-stone-200">
+          <div className="text-center py-12 px-4 bg-white rounded-xl border border-dashed border-stone-300">
             <PackageOpen className="w-10 h-10 text-amber-800/60 mx-auto mb-2" />
             <h3 className="text-sm sm:text-base font-semibold text-stone-800">
               Catalog Products Coming Soon
             </h3>
             <p className="text-xs text-stone-500 max-w-md mx-auto mt-1 mb-4">
-              Our latest handloom doormat stock with sizes and pricing is being updated. Contact us directly on WhatsApp for instant photos and wholesale price list.
+              Admin-uploaded doormats with live pricing, available colors, and direct WhatsApp inquiry will appear here.
             </p>
             <a
-              href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello SADIK HANDLOOM! Please share photos and prices of your available doormats.')}`}
+              href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hello SADIK HANDLOOM! Please share photos and prices of your ready stock doormats.')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition"
